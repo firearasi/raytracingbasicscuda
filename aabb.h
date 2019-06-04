@@ -10,7 +10,16 @@ inline float ffmax(float a, float b) {return a>b?a:b;}
 class aabb{
 public:
 	aabb(){}
-	aabb(const vec3&a, const vec3&b) {_min=a; _max=b;}
+	aabb(const vec3&a, const vec3&b) 
+	{	
+		_min.e[0]=ffmin(a.x(),b.x());
+		_min.e[1]=ffmin(a.y(),b.y());
+		_min.e[2]=ffmin(a.z(),b.z());
+		_max.e[0]=ffmax(a.x(),b.x());
+		_max.e[1]=ffmax(a.y(),b.y());
+		_max.e[2]=ffmax(a.z(),b.z());
+	 	
+	}
 	vec3 min() const {return _min;}
 	vec3 max() const {return _max;}
 

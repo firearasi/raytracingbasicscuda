@@ -7,7 +7,6 @@
 #include "bvh_node.h"
 #include "hitable.h"
 #include "camera.h"
-#include "box.h"
 #include "material.h"
 #include "texture.h"
 #include  <map>
@@ -15,18 +14,16 @@
 #include <thread>
 #include "scenes.h"
 using namespace std;
-
 hitable *world;
-int nx=1600;
-int ny=1600;
-int ns=200;
+int nx=1200;
+int ny=800;
+int ns=30;
 
-vec3 lookfrom(278, 278, -900);
-vec3 lookat(278,278,0);
-float dist_to_focus = 10.0;
-float aperture = 0.0;
-float vfov = 40.0;
-camera cam(lookfrom, lookat, vec3(0,1,0),vfov, float(nx)/float(ny),aperture, dist_to_focus);
+vec3 lookfrom(-13,3,6);
+vec3 lookat(0,0,0);
+float dist_to_focus = 13;
+float aperture = 0.03;
+camera cam(lookfrom, lookat, vec3(0,1,0),20, float(nx)/float(ny),aperture, dist_to_focus);
 float *img;      
 
 vec3 color (const ray& r, hitable *world, int depth=0)
@@ -37,20 +34,20 @@ vec3 color (const ray& r, hitable *world, int depth=0)
 	{
 		ray scattered;
 		vec3 attenuation;
-		vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
 		if(depth <= 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
 		{
-			return emitted + attenuation*(color(scattered, world, depth+1));
+			return attenuation*(color(scattered, world, depth+1));
 		}
 		else
 		{
-			return emitted;
+			return vec3(0,0,0);
 		}
 			
 	}
-	return vec3(0,0,0);
+	vec3 unit_direction = unit_vector(r.direction());
+	float s = 0.5*(unit_direction.y() + 1.0);
+	return lerp(vec3(1.0,1.0,1.0), vec3(0.5,0.7,1.0),s);
 }
-
 
 void render(int i, int j)
 {
@@ -66,7 +63,6 @@ void render(int i, int j)
 		col+=color(r,world);
 	}
 	col/=float(ns);
-	col=col.clamp();
 	img[i*(ny*3)+j*3+0] = col.r();
 	img[i*(ny*3)+j*3+1] = col.g();
 	img[i*(ny*3)+j*3+2] = col.b();
@@ -74,10 +70,12 @@ void render(int i, int j)
                       
 int main()
 {
-	world = cornell_balls();
+	world = random_scene();
 	srand48(time(NULL));
 	img = new float[nx*ny*3];
 	int parts=10;
+	world = random_scene();
+	   
 	vector<thread*> thds;
 	for (int i=0;i<parts;i++)
 		for(int j=0;j<parts;j++)
@@ -112,7 +110,6 @@ int main()
 				cout << ir<<" " << ig<<" " << ib<<"\n";
 				                                     
 			}
-
 		
 	delete img;
 	return 0;
