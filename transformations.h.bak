@@ -8,19 +8,11 @@ class translate: public hitable
 {
 public:
 	translate(vec3 o, hitable *_obj):offset(o), obj(_obj){}
-	~translate(){free();}
-	virtual void free();
 	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const ;
     virtual bool bounding_box(float t0, float t1, aabb& box) const;
 	vec3 offset;
 	hitable *obj;
 };
-
-void translate::free()
-{
-	if(obj)
-		delete obj;
-}
 
 bool translate::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 {
@@ -44,55 +36,39 @@ bool translate::bounding_box(float t0, float t1, aabb& box) const
 	return bBound;
 }
 
-// linear
-class linear: public hitable
+// orthogonal
+class orthogonal: public hitable
 {
 public:
-	linear(mat3 _m, hitable *_obj):m(_m), obj(_obj)
-	{
-		invTranspose = m.invTranspose();
-		inv=invTranspose.transpose();
-	}
-	~linear()
-	{
-		free();
-	}
-	virtual void free();
+	// here o must be an onthogonal matrix!
+	orthogonal(mat3 _o, hitable *_obj):o(_o), obj(_obj){inv=o.transpose();}
 	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const ;
     virtual bool bounding_box(float t0, float t1, aabb& box) const;
-	mat3 m;
+	mat3 o;
 	mat3 inv;
-	mat3 invTranspose;
 	hitable *obj;
 };
 
-void linear::free()
-{
-	if(obj)
-	{
-		delete obj;
-	}
-}
-bool linear::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool orthogonal::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 {
 	ray r_inv=inv*r;
 	bool bHit = obj->hit(r_inv, t_min, t_max, rec);
 	if(bHit)
 	{
-		rec.p = m * rec.p;
+		rec.p = o * rec.p;
 
-		//  normal is in the cotangent space and is contravariant, tr(inv(m))
-		rec.normal = unit_vector(invTranspose * rec.normal);
+		// Since o is orthogonal, tr(inv(o)) happens to be o
+		rec.normal = o * rec.normal;
 	}
 	return bHit;
 }
 
-bool linear::bounding_box(float t0, float t1, aabb& box) const
+bool orthogonal::bounding_box(float t0, float t1, aabb& box) const
 {
 	bool bBound = obj->bounding_box(t0, t1, box);
 	if(bBound)
 	{
-		box=m*box;
+		box=o*box;
 	}
 	return bBound;
 }

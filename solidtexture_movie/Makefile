@@ -10,4 +10,3 @@ test: $(target)
 	date
 	time "./$(target)" 
 	date
-	okular pic.ppm

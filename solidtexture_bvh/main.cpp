@@ -11,18 +11,19 @@
 #include "texture.h"
 #include  <map>
 #include <vector>
+#include <fstream>
 #include <thread>
 #include "scenes.h"
 using namespace std;
 hitable *world;
-int nx=1200;
-int ny=800;
-int ns=30;
+int nx=1920;
+int ny=1080;
+int ns=20;
 
-vec3 lookfrom(-13,3,6);
+vec3 lookfrom(-3,13,17);
 vec3 lookat(0,0,0);
-float dist_to_focus = 13;
-float aperture = 0.03;
+float dist_to_focus = 24;
+float aperture = 0.06;
 camera cam(lookfrom, lookat, vec3(0,1,0),20, float(nx)/float(ny),aperture, dist_to_focus);
 float *img;      
 
@@ -34,7 +35,7 @@ vec3 color (const ray& r, hitable *world, int depth=0)
 	{
 		ray scattered;
 		vec3 attenuation;
-		if(depth <= 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		if(depth <= 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
 		{
 			return attenuation*(color(scattered, world, depth+1));
 		}
@@ -70,11 +71,11 @@ void render(int i, int j)
                       
 int main()
 {
-	world = random_scene();
-	srand48(time(NULL));
+
+	srand48(123);
+	world = random_scene2(0);
 	img = new float[nx*ny*3];
 	int parts=10;
-	world = random_scene();
 	   
 	vector<thread*> thds;
 	for (int i=0;i<parts;i++)
@@ -94,10 +95,13 @@ int main()
 	{
 		thd->join();
 	}
-	
+	delete world;	
 	float r,g,b;
 	int ir,ig,ib;
-	cout << "P3\n" << nx << " " << ny << "\n255\n";	
+
+	fstream file;
+	file.open("pic.ppm");
+	file << "P3\n" << nx << " " << ny << "\n255\n";	
 	for(int j=ny-1;j>=0;j--)
 		for(int i=0;i<nx;i++)
 			{
@@ -107,10 +111,10 @@ int main()
 				ir=int(255.99*sqrt(r));
 				ig=int(255.99*sqrt(g));
 				ib=int(255.99*sqrt(b));
-				cout << ir<<" " << ig<<" " << ib<<"\n";
+				file << ir<<" " << ig<<" " << ib<<"\n";
 				                                     
 			}
-		
+	file.close();
 	delete img;
 	return 0;
 }

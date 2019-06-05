@@ -17,9 +17,9 @@
 using namespace std;
 
 hitable *world;
-int nx=800;
-int ny=800;
-int ns=20;
+int nx=1600;
+int ny=1600;
+int ns=300;
 
 vec3 lookfrom(278, 278, -900);
 vec3 lookat(278,278,0);
