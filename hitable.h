@@ -51,4 +51,5 @@ public:
         
 	hitable *original;
 };
+
 #endif

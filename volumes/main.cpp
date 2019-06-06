@@ -19,7 +19,7 @@ using namespace std;
 hitable *world;
 int nx=1600;
 int ny=1600;
-int ns=300;
+int ns=100;
 
 vec3 lookfrom(278, 278, -900);
 vec3 lookat(278,278,0);
@@ -74,7 +74,7 @@ void render(int i, int j)
                       
 int main()
 {
-	world = cornell_balls();
+	world = cornell_smoke();
 	srand48(time(NULL));
 	img = new float[nx*ny*3];
 	int parts=10;

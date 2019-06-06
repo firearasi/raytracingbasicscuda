@@ -25,26 +25,11 @@ public:
 	}
 };
 
+
 class lambertian: public material
 {
 public:
-	lambertian(const vec3& a):albedo(a){}
-	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const;
-	vec3 albedo;
-};
-
-bool lambertian::scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const
-{
-	vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-	scattered = ray(rec.p, target - rec.p);
-	attenuation = albedo;
-	return true;
-}
-
-class lambertian_texture: public material
-{
-public:
-	lambertian_texture(texture *a): albedo(a) {}
+	lambertian(texture *a): albedo(a) {}
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const
 	{
 		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
@@ -56,7 +41,7 @@ public:
 	{
 		int nx, ny, nn;
 		unsigned char *tex_data=stbi_load(imgfile.c_str(), &nx,&ny,&nn,0);
-		material *mat=new lambertian_texture(new image_texture(tex_data,nx,ny));
+		material *mat=new lambertian(new image_texture(tex_data,nx,ny));
 		return mat;
 	}
 	texture *albedo;
@@ -150,6 +135,23 @@ public:
 	texture *specular;
 	float shininess;
 };
+
+class isotropic: public material
+{
+public:
+    isotropic(texture* a):albedo(a){}
+    virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const;
+    texture* albedo;
+};
+
+bool isotropic::scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const
+{
+    scattered=ray(rec.p, random_in_unit_sphere());
+    attenuation = albedo->value(rec.u,rec.v,rec.p);
+    return true;
+}
+
+
 #endif
 
 

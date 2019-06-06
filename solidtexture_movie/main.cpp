@@ -73,14 +73,14 @@ void render(int i, int j)
 int main()
 {
 
-	srand48(123);
 
 	float lower = -6;
 	float upper = 6;
 	float range = upper-lower;
-	int total = 25*10;
+	int total = 25*20;
 	char filename[20]={0};
 	for(int i=0;i<total;i++) {
+	srand48(123);
 	float curr = lower + i*(range/(float)total);
 	world = random_scene2(curr);
 	img = new float[nx*ny*3];
