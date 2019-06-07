@@ -79,7 +79,7 @@ int main()
 	float range = upper-lower;
 	int total = 25*20;
 	char filename[20]={0};
-	for(int i=0;i<total;i++) {
+	for(int i=0;i<2;i++) {
 	srand48(123);
 	float curr = lower + i*(range/(float)total);
 	world = random_scene2(curr);

@@ -16,7 +16,9 @@ public:
 	mat3 operator-() const;
 	mat3 transpose() const;
 	mat3 invTranspose() const;
+	static mat3 rotate_x(float th);
 	static mat3 rotate_y(float th);
+	static mat3 rotate_z(float th);
 	static mat3 scale_xyz(float a, float b, float c);
 	float e[3][3];
 	//mat3 *inv;
@@ -177,6 +179,26 @@ mat3 mat3::rotate_y(float th)
 	float a[9]={cos(th),	0,	-sin(th),
 				0	 , 	1,		0	,
 			  sin(th),	0,	cos(th)};
+	return mat3(a);
+
+}
+
+
+
+mat3 mat3::rotate_x(float th)
+{
+	float a[9]={1,	0,	     0,
+				0, cos(th),	-sin(th),
+			   0,	sin(th), cos(th)};
+	return mat3(a);
+
+}
+
+mat3 mat3::rotate_z(float th)
+{
+	float a[9]={cos(th) ,-sin(th),0 ,
+				sin(th) , cos(th),0	,
+			   0,	0,	1};
 	return mat3(a);
 
 }

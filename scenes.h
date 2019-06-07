@@ -15,6 +15,7 @@
 #include "material.h"
 #include "texture.h"
 #include "constant_medium.h"
+#include "cylinder.h"
 
 hitable *random_scene()
 {
@@ -60,6 +61,24 @@ hitable *random_scene()
 }
 
 
+hitable *simple_scene()
+{
+	int n =500;
+	material *red = new lambertian(new constant_texture(vec3(0.65,0.05,0.05)));
+    hitable **list = new hitable*[n+1];
+    texture *checker = new checker_texture(new constant_texture(vec3(0.2, 0.3,0.1)),
+        new constant_texture(vec3(0.9,0.9,0.9)));
+	int i=0;
+    list[i++]=new sphere(vec3(0, -1000,0),1000,new lambertian(checker));
+	list[i++]=new cylinder(0.5,0,1,new metal(vec3(0.8,0.85,0.88),0.0));
+	list[i++]=new translate(vec3(-1.5,1.0,2),  new linear(mat3::rotate_y(20*M_PI/180) * mat3::rotate_x(20*M_PI/180),
+		new solid_cylinder(0.5,-0.5,0.5,new dielectric(1.3))));
+	list[i++]=new translate(vec3(1.5,1,2), new linear(mat3::rotate_z(-30*M_PI/180), 
+		new solid_cylinder(0.5,-0.5,0.5,new dielectric(1.3))));
+	list[i++]= new box(vec3(-0.5,0,-0.5), vec3(0.5,6,0.5),red);
+	return new bvh_node(list,i);
+}
+
 hitable *random_scene2(float loc)
 {
 	int n =500;
@@ -95,11 +114,15 @@ hitable *random_scene2(float loc)
 		}
 	}
 
-	list[i++]=new translate(vec3(0,2.5,1),new linear(mat3::scale_xyz(1.5,1.5,1.5), new sphere(vec3(0,0,0),1.0,new dielectric(1.5))));
+	list[i++]=new translate(vec3(0,2.5,0),new linear(mat3::scale_xyz(1.5,1.5,1.5), new sphere(vec3(0,0,0),1.0,new dielectric(1.5))));
+		
+	//list[i++]=new translate(vec3(0,0,4),new cylinder(1.3,0,4,new dielectric(1.5)));
+	
 	list[i++]=new translate(vec3(-4,2.5,0),new linear(mat3::scale_xyz(1.5,1.5,1.5),
 		new sphere(vec3(0,0,0),1.0, lambertian::from_image("../img/earth.jpg"))));
 	list[i++]=new sphere(vec3(4,1,0),1.0, new metal(vec3(0.7,0.6,0.5),0.2));
 	list[i++]=new sphere(vec3(loc,3,6),0.5,new dielectric(1.3));
+		
 	//return new hitable_list(list, i);
 	return new bvh_node(list,i,0,0);
 }
@@ -188,6 +211,52 @@ hitable *cornell_smoke() {
     return new bvh_node(list,i,0,0);
 }
 
-
+hitable *final() {
+    int nb = 20;
+    hitable **list = new hitable*[30];
+    hitable **boxlist = new hitable*[10000];
+    hitable **boxlist2 = new hitable*[10000];
+    material *white = new lambertian( new constant_texture(vec3(0.73, 0.73, 0.73)) );
+    material *ground = new lambertian( new constant_texture(vec3(0.48, 0.83, 0.53)) );
+    int b = 0;
+    for (int i = 0; i < nb; i++) {
+        for (int j = 0; j < nb; j++) {
+            float w = 100;
+            float x0 = -1000 + i*w;
+            float z0 = -1000 + j*w;
+            float y0 = 0;
+            float x1 = x0 + w;
+            float y1 = 100*(drand48()+0.01);
+            float z1 = z0 + w;
+            boxlist[b++] = new box(vec3(x0,y0,z0), vec3(x1,y1,z1), ground);
+        }
+    }
+    int l = 0;
+    list[l++] = new bvh_node(boxlist, b, 0, 1);
+    material *light = new diffuse_light( new constant_texture(vec3(7, 7, 7)) );
+    list[l++] = new xz_rect(123, 423, 147, 412, 554, light);
+    vec3 center(400, 400, 200);
+  //  list[l++] = new moving_sphere(center, center+vec3(30, 0, 0), 0, 1, 50, new lambertian(new constant_texture(vec3(0.7, 0.3, 0.1))));
+    list[l++] = new sphere(vec3(260, 150, 45), 50, new dielectric(1.5));
+    list[l++] = new sphere(vec3(0, 150, 145), 50, new metal(vec3(0.8, 0.8, 0.9), 10.0));
+    hitable *boundary = new sphere(vec3(360, 150, 145), 70, new dielectric(1.5));
+    list[l++] = boundary;
+    list[l++] = new constant_medium(boundary, 0.2, new constant_texture(vec3(0.2, 0.4, 0.9)));
+    boundary = new sphere(vec3(0, 0, 0), 5000, new dielectric(1.5));
+    list[l++] = new constant_medium(boundary, 0.0001, new constant_texture(vec3(1.0, 1.0, 1.0)));
+    int nx, ny, nn;
+    unsigned char *tex_data = stbi_load("earthmap.jpg", &nx, &ny, &nn, 0);
+    material *emat =  new lambertian(new image_texture(tex_data, nx, ny));
+    list[l++] = new sphere(vec3(400,200, 400), 100, emat);
+    texture *pertext = new noise_texture(0.1);
+    list[l++] =  new sphere(vec3(220,280, 300), 80, new lambertian( pertext ));
+    int ns = 1000;
+    for (int j = 0; j < ns; j++) {
+        boxlist2[j] = new sphere(vec3(165*drand48(), 165*drand48(), 165*drand48()), 10, white);
+    }
+	list[l++] = new translate(vec3(-100,270,395),
+		new linear(mat3::rotate_y(15*M_PI/180), new bvh_node(boxlist2,ns)));
+    return new bvh_node(list,l,0,0);
+}
 
 #endif

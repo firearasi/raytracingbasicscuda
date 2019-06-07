@@ -18,11 +18,11 @@ using namespace std;
 hitable *world;
 int nx=1920;
 int ny=1080;
-int ns=30;
-float factor = 1.5;
-vec3 lookfrom(-3/factor,13.0/factor,17.0/factor);
+int ns=20;
+
+vec3 lookfrom(-3,13,17);
 vec3 lookat(0,0,0);
-float dist_to_focus = 12;
+float dist_to_focus = 24;
 float aperture = 0.06;
 camera cam(lookfrom, lookat, vec3(0,1,0),20, float(nx)/float(ny),aperture, dist_to_focus);
 float *img;      
@@ -73,8 +73,7 @@ int main()
 {
 
 	srand48(123);
-//	world = random_scene2(-4);
-	world = simple_scene();
+	world = random_scene2(0);
 	img = new float[nx*ny*3];
 	int parts=10;
 	   
