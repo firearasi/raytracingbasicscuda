@@ -32,12 +32,12 @@ box::box(const vec3& p, const vec3& q, material *m):bb(p,q), mat(m)
 	_max = bb.max();
 
 	int a=_min.x(), b = _min.y(), c = _min.z(), d = _max.x(), e = _max.y(), f = _max.z();
-	front = new xy_rect(a,d,b,e,f,m);
-	back = new flip_normals(new xy_rect(a,d,b,e,c,m));
-	top = new xz_rect(a,d,c,f,e,m);
-	bottom = new flip_normals(new xz_rect(a,d,c,f,b,m));
-	left = new flip_normals(new yz_rect(b,e,c,f,a,m));
-	right = new yz_rect(b,e,c,f,d,m);
+	front = new xy_rect(a,d,b,e,f,m,uv(1.0/4.0,1.0/3.0),uv(1.0/4.0, 0), uv(0, 1.0/3.0));
+	back = new flip_normals(new xy_rect(a,d,b,e,c,m,uv(1.0,1.0/3.0),uv(-1.0/4.0,0), uv(0, 1.0/3.0)));
+	top = new xz_rect(a,d,c,f,e,m, uv(1.0/4.0,1.0), uv(1.0/4.0,0),uv(0,-1.0/3.0));
+	bottom = new flip_normals(new xz_rect(a,d,c,f,b,m,uv(1.0/4.0, 0), uv(1.0/4.0,0),uv(0,1.0/3.0)));
+	left = new flip_normals(new yz_rect(b,e,c,f,a,m, uv(0.0, 1.0/3.0), uv(0,1.0/3.0),uv(1.0/4.0,0)));
+	right = new yz_rect(b,e,c,f,d,m,uv(3.0/4.0,1.0/3.0),uv(0,1.0/3.0),uv(-1.0/4.0, 0));
 	hitable *list[6];
 	list[0] = front;
 	list[1] = back;

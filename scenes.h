@@ -60,7 +60,25 @@ hitable *random_scene()
 	return new bvh_node(list,i,0,0);
 }
 
+hitable *box_scene()
+{
+	int n=11;
+    material *red = new lambertian(new constant_texture(vec3(0.65,0.05,0.05)));
+    hitable **list = new hitable*[n+1];
+    texture *checker = new checker_texture(new constant_texture(vec3(0.2, 0.3,0.1)),
+        new constant_texture(vec3(0.9,0.9,0.9)));
+    int i=0;
+    //list[i++]=new sphere(vec3(0, -1000,0),1000,new lambertian(checker));
+	material *skybox=lambertian::from_image("../img/skybox3.jpg");
 
+	hitable *b=new box(vec3(-1.2,-1.2,-1.2), vec3(1.2,1.2,1.2), skybox);
+	list[i++]=new linear(mat3::rotate_x(-4*M_PI/180), b);
+
+	hitable *s=new sphere(vec3(-1.4,1.2,1.4),0.6, new dielectric(1.4));
+	list[i++]=s;
+
+	return new bvh_node(list,i);	
+}	
 hitable *simple_scene()
 {
 	int n =500;

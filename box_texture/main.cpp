@@ -10,7 +10,6 @@
 #include "material.h"
 #include "texture.h"
 #include  <map>
-#include <cstdio>
 #include <vector>
 #include <fstream>
 #include <thread>
@@ -20,10 +19,10 @@ hitable *world;
 int nx=1920;
 int ny=1080;
 int ns=20;
-
-vec3 lookfrom(-3,13,17);
+float factor = 1.35;
+vec3 lookfrom(-10/factor, 10/factor,13.0/factor);
 vec3 lookat(0,0,0);
-float dist_to_focus = 24;
+float dist_to_focus = 12;
 float aperture = 0.06;
 camera cam(lookfrom, lookat, vec3(0,1,0),20, float(nx)/float(ny),aperture, dist_to_focus);
 float *img;      
@@ -36,7 +35,7 @@ vec3 color (const ray& r, hitable *world, int depth=0)
 	{
 		ray scattered;
 		vec3 attenuation;
-		if(depth <= 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		if(depth <= 30 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
 		{
 			return attenuation*(color(scattered, world, depth+1));
 		}
@@ -73,16 +72,9 @@ void render(int i, int j)
 int main()
 {
 
-
-	float lower = -6;
-	float upper = 6;
-	float range = upper-lower;
-	int total = 25*20;
-	char filename[20]={0};
-	for(int i=285;i<total;i++) {
 	srand48(123);
-	float curr = lower + i*(range/(float)total);
-	world = random_scene2(curr);
+//	world = random_scene2(-4);
+	world = box_scene();
 	img = new float[nx*ny*3];
 	int parts=10;
 	   
@@ -108,10 +100,8 @@ int main()
 	float r,g,b;
 	int ir,ig,ib;
 
-	sprintf(filename, "movie/frame%03d.ppm", i);
-	cerr << "Writing " << filename << endl;
 	ofstream file;
-	file.open(filename);
+	file.open("pic.ppm");
 	file << "P3\n" << nx << " " << ny << "\n255\n";	
 	for(int j=ny-1;j>=0;j--)
 		for(int i=0;i<nx;i++)
@@ -127,6 +117,5 @@ int main()
 			}
 	file.close();
 	delete img;
-	}
 	return 0;
 }

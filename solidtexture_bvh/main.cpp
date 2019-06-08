@@ -18,7 +18,7 @@ using namespace std;
 hitable *world;
 int nx=1920;
 int ny=1080;
-int ns=30;
+int ns=20;
 float factor = 1.5;
 vec3 lookfrom(-3/factor,13.0/factor,17.0/factor);
 vec3 lookat(0,0,0);
@@ -35,7 +35,7 @@ vec3 color (const ray& r, hitable *world, int depth=0)
 	{
 		ray scattered;
 		vec3 attenuation;
-		if(depth <= 20 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		if(depth <= 30 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
 		{
 			return attenuation*(color(scattered, world, depth+1));
 		}
