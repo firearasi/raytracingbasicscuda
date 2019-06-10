@@ -1,5 +1,5 @@
 target := $(patsubst %.cpp,%,$(wildcard *.cpp))
-flags = -I.. -lpthread
+flags = -I../lib -lpthread -L../lib -lraytracing
 all: $(target)
 %: %.cpp
 	g++ -g -o $@  $< $(flags)
