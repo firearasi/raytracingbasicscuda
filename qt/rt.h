@@ -15,6 +15,7 @@
 #include <vector>
 #include <fstream>
 #include <thread>
+#include <mutex>
 #include "scene.h"
 #include <string.h>
 #include <QImage>
@@ -32,14 +33,14 @@ public:
     camera* cam;
     float *img;
     QImage qimg;
+    std::mutex qimg_mtx;
     Scene(hitable *w,  camera* c, int _nx=1920, int _ny=1080,int _ns=20)
         :nx(_nx),ny(_ny),ns(_ns),world(w),cam(c),qimg(nx,ny,QImage::Format_RGB32)
     {
         qDebug() << "QImg Size" << qimg.size();
     }
     vec3 color (const ray& r, int depth=0);
-    void render_ppm_pixel(int i, int j);
-    int render_ppm(string filename="pic.ppm");
+
 
     void render_qimg_pixel(int i, int j);
     int render_qimg();

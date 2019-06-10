@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <mutex>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,9 +46,12 @@ void MainWindow::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     // 反走样
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    //painter.setRenderHint(QPainter::Antialiasing, true);
 
-    painter.drawImage(0,0,s->qimg);
+    {
+        std::lock_guard<std::mutex> lg(s->qimg_mtx);
+        painter.drawImage(0,0,s->qimg);
+    }
     painter.end();
 }
 
