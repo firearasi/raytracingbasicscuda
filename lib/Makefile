@@ -1,12 +1,12 @@
-obj := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+obj := $(patsubst %.cu,%.o,$(wildcard *.cu))
 flags = -I.
 target = libraytracing.so
 all: $(target)
-%.o: %.cpp %.h
-	g++ -c -fPIC -g -o $@  $< $(flags)
+%.o: %.cu %.h
+	nvcc -Xcompiler -fPIC -c -G -g -o $@  $< $(flags)
 $(target): $(obj)
 	echo $(obj)
-	g++ -shared -g -o $@ $^ 
+	nvcc -shared -g -o $@ $^ 
 
 .PHONY: clean test
 clean:
